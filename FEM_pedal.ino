@@ -9,7 +9,7 @@ MCP_CAN CAN0(10);                               // Set CS to pin 10
 int lSensorData, rSensorData, lSensorConv, rSensorConv;
 byte data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
-const byte lSensorPin = 1;
+const byte lSensorPin = 5;
 const byte rSensorPin = 6;
 
 unsigned long timer = 0;
@@ -128,17 +128,17 @@ void loop() {
  lSensorConv = map(lSensorData, 695, 1010, 0, 4096);
  rSensorConv = map(rSensorData, 30, 310, 0, 4096);
  lSensorConv = constrain(lSensorConv, 0, 4095);
- rSensorConv = constrain(rSensorConv,0, 4095);
+ rSensorConv = constrain(rSensorConv, 0, 4095);
  int minim;
  if (lSensorConv<rSensorConv) minim=lSensorConv; else minim=rSensorConv;
- if(abs(lSensorConv-rSensorConv)>820)
+ /*if(abs(lSensorConv-rSensorConv)>820)
  {
     CanMsgSend(0, 604);
     minim = 0;
     return;
- }
+ }*/
  CanMsgSend(minim, 0);
- 
+
   String debug;
   debug = String(minim) + ";" + String(lSensorData) + ";" + String(rSensorData) + ";" + String(lSensorConv) + ";" + String(rSensorConv);
   Serial.println(debug);
