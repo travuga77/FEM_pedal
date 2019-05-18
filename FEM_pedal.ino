@@ -35,11 +35,9 @@ void setup() {
   pinMode(CAN0_INT, INPUT);  // Configuring pin for /INT input
   pinMode(A6, INPUT);
   digitalWrite(A6, LOW);
-  pinMode(A1, INPUT);
-  digitalWrite(A1, LOW);
+  pinMode(A5, INPUT);
+  digitalWrite(A5, LOW);
 }
-
-
 
 void loop() {
  // put your main code here, to run repeatedly:
@@ -53,15 +51,19 @@ void loop() {
   switch (rxId) {
     case 0x80:
       // send data:  ID = 0x100, Standard CAN Frame, Data length = 8 bytes, 'data' = array of data bytes to send
+      int minim; byte sndStat;
       lSensorData = lSensorData_collect/count;
       rSensorData = rSensorData_collect/count;
-      lSensorConv = map(lSensorData, 695, 1010, 0, 4096);
-      rSensorConv = map(rSensorData, 30, 310, 0, 4096);
-      lSensorConv = constrain(lSensorConv, 0, 4095);
-      rSensorConv = constrain(rSensorConv, 0, 4095);
-      int minim; byte sndStat;
-      if (lSensorConv<rSensorConv) minim=lSensorConv; else minim=rSensorConv;
-
+      if (abs(lSensorData-rSensorData)>400) {
+        lSensorConv = map(lSensorData, 720, 1010, 0, 4095);
+        rSensorConv = map(rSensorData, 30, 310, 0, 4095);
+        lSensorConv = constrain(lSensorConv, 0, 4095);
+        rSensorConv = constrain(rSensorConv, 0, 4095);
+        if (lSensorConv<rSensorConv) minim=lSensorConv; else minim=rSensorConv;
+      }
+      else {
+        minim=0;
+      }
       data[0] = minim%256;
       data[1] = minim>>8;
       sndStat = CAN0.sendMsgBuf(0x150, 0, 2, data);
