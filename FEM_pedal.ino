@@ -1,6 +1,7 @@
 
 #include <mcp_can.h>
 #include <SPI.h>
+#include <avr/wdt.h>
 
 #define CAN0_INT 2                              // Set INT to pin 2
 MCP_CAN CAN0(10);                               // Set CS to pin 10
@@ -20,12 +21,14 @@ unsigned long timer = 0;
 int errCode;
 
 void setup() {
+
+  wdt_enable(WDTO_30MS);
   // put your setup code here, to run once:
    Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  if (CAN0.begin(MCP_ANY, CAN_250KBPS, MCP_8MHZ) == CAN_OK)
+  if (CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_8MHZ) == CAN_OK)
     Serial.println("MCP2515 Initialized Successfully!");
   else
     Serial.println("Error Initializing MCP2515...");
@@ -33,15 +36,15 @@ void setup() {
   CAN0.setMode(MCP_NORMAL);                     // Set operation mode to normal so the MCP2515 sends acks to received data.
 
   pinMode(CAN0_INT, INPUT);  // Configuring pin for /INT input
-  pinMode(A6, INPUT);
-  digitalWrite(A6, LOW);
-  pinMode(A5, INPUT);
-  digitalWrite(A5, LOW);
+  pinMode(A1, INPUT);
+  digitalWrite(A1, LOW);
+  pinMode(A2, INPUT);
+  digitalWrite(A2, LOW);
 }
 
 void loop() {
  // put your main code here, to run repeatedly:
-  
+ wdt_reset();
  lSensorData_collect += analogRead(lSensorPin);
  rSensorData_collect += analogRead(rSensorPin);
  count++;
